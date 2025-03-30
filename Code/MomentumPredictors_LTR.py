@@ -2,7 +2,7 @@
 """
 Created on Mon Mar 24 14:25:12 2025
 
-@author: piyus
+@author: piyush
 """
 
 import pandas as pd
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     dates = pd.date_range('1995-01-01', '2023-12-31')
     # tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA']
     
-    ohlc_path = r'G:\My Drive\Quant Code PK\Learning to Rank Model\Data\sp500_combined_ohlc_data.csv'
+    ohlc_path = r'Data\sp500_combined_ohlc_data.csv'
     if os.path.exists(ohlc_path ):
         ohlc_data = pd.read_csv(ohlc_path)
         prices = ohlc_data.loc[:,['Date','ticker','close']]
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     else:
         START_DATE = "1995-01-01"
         END_DATE = (datetime.today() -  relativedelta(months=1, day=31)).strftime('%Y-%m-%d')
-        sp500_hist = pd.read_excel(r'G:\My Drive\Quant Code PK\Learning to Rank Model\SP500_MonthEnd_Constituents_'+datetime(1998, 1, 1).date().strftime('%Y%m%d')+'.xlsx', index_col=0)
+        sp500_hist = pd.read_excel(r'Data\SP500_MonthEnd_Constituents_'+datetime(1998, 1, 1).date().strftime('%Y%m%d')+'.xlsx', index_col=0)
         all_tickers = list(pd.unique(sp500_hist .values.ravel()))
         TICKERS = [x for x in all_tickers if not (isinstance(x, str) and x == np.nan)]
 
@@ -193,6 +193,12 @@ if __name__ == "__main__":
     predictor = MomentumPredictors(prices, rets)
     all_predictors = predictor.compute_all_predictors()
     
+    all_predictors = all_predictors.reset_index()
+    all_predictors ['Date'] = pd.to_datetime(all_predictors ['Date'])
+    all_predictors = all_predictors .set_index(['Date','ticker'])
+    
+    
+    all_predictors.to_pickle(r'Data\LTR_Momentum_Indicators.pkl')
     print("Available predictors:")
     print(all_predictors.columns.tolist())
     
